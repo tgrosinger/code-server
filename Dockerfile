@@ -38,6 +38,7 @@ RUN apt-get update && apt-get install -y \
 # Common SDK
 RUN apt-get update && apt-get install -y \
     git \
+    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 # Node SDK
