@@ -10,6 +10,7 @@ RUN apt-get update && apt-get install -y \
     lsb-release \
     ca-certificates \
     gpg \
+    bsdtar \
     add-apt-key \
     apt-transport-https \    
     dumb-init \
@@ -77,25 +78,40 @@ RUN mkdir /home/coder/go
 ENV GOPATH "/home/coder/go"
 ENV PATH "${PATH}:/usr/local/go/bin:/home/coder/go/bin"
 
-#RUN go get -u \
-#    github.com/mdempsky/gocode \
-#    github.com/uudashr/gopkgs/cmd/gopkgs \
-#    github.com/ramya-rao-a/go-outline \
-#    github.com/acroca/go-symbols \
-#    golang.org/x/tools/cmd/guru \
-#    golang.org/x/tools/cmd/gorename \
-#    github.com/go-delve/delve/cmd/dlv \
-#    github.com/stamblerre/gocode \
-#    github.com/rogpeppe/godef \
-#    github.com/sqs/goreturns \
-#    golang.org/x/lint/golint \
-#    && rm -rf $GOPATH/src \
-#    && rm -rf $GOPATH/pkg
-
 # Setup Uset .NET Environment
 # ENV DOTNET_CLI_TELEMETRY_OPTOUT "true"
 # ENV MSBuildSDKsPath "/usr/share/dotnet/sdk/2.2.202/Sdks"
 # ENV PATH "${PATH}:${MSBuildSDKsPath}"
+
+# Setup User Visual Studio Code Extentions
+RUN mkdir -p /home/coder/.local/share/code-server/extensions/
+ENV VSCODE_EXTENSIONS "/home/coder/.local/share/code-server/extensions"
+
+# Setup Go Extension
+RUN mkdir -p ${VSCODE_EXTENSIONS}/ms-vscode.go-0.9.0 \
+    && curl -JLs https://github.com/Microsoft/vscode-go/releases/download/0.9.0/Go-0.9.0.vsix | bsdtar --strip-components=1 -xf - -C ${VSCODE_EXTENSIONS}/ms-vscode.go-0.9.0 extension
+
+RUN go get -u \
+    github.com/mdempsky/gocode \
+    github.com/uudashr/gopkgs/cmd/gopkgs \
+    github.com/ramya-rao-a/go-outline \
+    github.com/acroca/go-symbols \
+    golang.org/x/tools/cmd/guru \
+    golang.org/x/tools/cmd/gorename \
+    github.com/go-delve/delve/cmd/dlv \
+    github.com/stamblerre/gocode \
+    github.com/rogpeppe/godef \
+    github.com/sqs/goreturns \
+    golang.org/x/lint/golint \
+    && rm -rf $GOPATH/src \
+    && rm -rf $GOPATH/pkg
+    
+# Setup Kubernetes Extension
+RUN mkdir -p ${VSCODE_EXTENSIONS}/redhat.vscode-yaml-0.4.0 \
+    && curl -JLs https://marketplace.visualstudio.com/_apis/public/gallery/publishers/redhat/vsextensions/vscode-yaml/0.4.0/vspackage | bsdtar --strip-components=1 -xf - -C ${VSCODE_EXTENSIONS}/redhat.vscode-yaml-0.4.0 extension
+
+RUN mkdir -p ${VSCODE_EXTENSIONS}/ms-kubernetes-tools.vscode-kubernetes-tools-0.1.18 \
+    && curl -JLs https://marketplace.visualstudio.com/_apis/public/gallery/publishers/ms-kubernetes-tools/vsextensions/vscode-kubernetes-tools/0.1.18/vspackage | bsdtar --strip-components=1 -xf - -C ${VSCODE_EXTENSIONS}/ms-kubernetes-tools.vscode-kubernetes-tools-0.1.18 extension
 
 # Setup User Workspace
 RUN mkdir -p /home/coder/project
