@@ -59,6 +59,11 @@ RUN curl -sL https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz | tar -
 #    dotnet-sdk-2.2 \
 #    && rm -rf /var/lib/apt/lists/*
 
+# Chromium
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    chromium-browser \
+    && rm -rf /var/lib/apt/lists/*
+
 # Code-Server
 ENV CODE_VERSION="1.696-vsc1.33.0"
 RUN curl -sL https://github.com/codercom/code-server/releases/download/${CODE_VERSION}/code-server${CODE_VERSION}-linux-x64.tar.gz | tar --strip-components=1 -zx -C /usr/local/bin code-server${CODE_VERSION}-linux-x64/code-server
@@ -89,8 +94,8 @@ RUN mkdir -p /home/coder/.local/share/code-server/extensions/
 ENV VSCODE_EXTENSIONS "/home/coder/.local/share/code-server/extensions"
 
 # Setup Go Extension
-RUN mkdir -p ${VSCODE_EXTENSIONS}/ms-vscode.go-0.9.0 \
-    && curl -JLs https://github.com/Microsoft/vscode-go/releases/download/0.9.0/Go-0.9.0.vsix | bsdtar --strip-components=1 -xf - -C ${VSCODE_EXTENSIONS}/ms-vscode.go-0.9.0 extension
+RUN mkdir -p ${VSCODE_EXTENSIONS}/go \
+    && curl -JLs https://github.com/Microsoft/vscode-go/releases/download/0.9.0/Go-0.9.0.vsix | bsdtar --strip-components=1 -xf - -C ${VSCODE_EXTENSIONS}/go extension
 
 RUN go get -u \
     github.com/mdempsky/gocode \
@@ -108,11 +113,18 @@ RUN go get -u \
     && rm -rf $GOPATH/pkg
     
 # Setup Kubernetes Extension
-RUN mkdir -p ${VSCODE_EXTENSIONS}/redhat.vscode-yaml-0.4.0 \
-    && curl -JLs https://marketplace.visualstudio.com/_apis/public/gallery/publishers/redhat/vsextensions/vscode-yaml/0.4.0/vspackage | bsdtar --strip-components=1 -xf - -C ${VSCODE_EXTENSIONS}/redhat.vscode-yaml-0.4.0 extension
+RUN mkdir -p ${VSCODE_EXTENSIONS}/yaml \
+    && curl -JLs https://marketplace.visualstudio.com/_apis/public/gallery/publishers/redhat/vsextensions/vscode-yaml/0.4.0/vspackage | bsdtar --strip-components=1 -xf - -C ${VSCODE_EXTENSIONS}/yaml extension
 
-RUN mkdir -p ${VSCODE_EXTENSIONS}/ms-kubernetes-tools.vscode-kubernetes-tools-0.1.18 \
-    && curl -JLs https://marketplace.visualstudio.com/_apis/public/gallery/publishers/ms-kubernetes-tools/vsextensions/vscode-kubernetes-tools/0.1.18/vspackage | bsdtar --strip-components=1 -xf - -C ${VSCODE_EXTENSIONS}/ms-kubernetes-tools.vscode-kubernetes-tools-0.1.18 extension
+RUN mkdir -p ${VSCODE_EXTENSIONS}/kubernetes \
+    && curl -JLs https://marketplace.visualstudio.com/_apis/public/gallery/publishers/ms-kubernetes-tools/vsextensions/vscode-kubernetes-tools/0.1.18/vspackage | bsdtar --strip-components=1 -xf - -C ${VSCODE_EXTENSIONS}/kubernetes extension
+
+# Setup Browser Preview
+RUN mkdir -p ${VSCODE_EXTENSIONS}/debugger-for-chrome \
+    && curl -JLs https://marketplace.visualstudio.com/_apis/public/gallery/publishers/msjsdiag/vsextensions/debugger-for-chrome/4.11.3/vspackage | bsdtar --strip-components=1 -xf - -C ${VSCODE_EXTENSIONS}/debugger-for-chrome extension
+
+RUN mkdir -p ${VSCODE_EXTENSIONS}/browser-preview \
+    && curl -JLs https://marketplace.visualstudio.com/_apis/public/gallery/publishers/auchenberg/vsextensions/vscode-browser-preview/0.4.0/vspackage | bsdtar --strip-components=1 -xf - -C ${VSCODE_EXTENSIONS}/browser-preview extension
 
 # Setup User Workspace
 RUN mkdir -p /home/coder/project
