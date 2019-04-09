@@ -102,7 +102,7 @@ ENV VSCODE_EXTENSIONS "/home/coder/.local/share/code-server/extensions"
 
 # Setup Go Extension
 RUN mkdir -p ${VSCODE_EXTENSIONS}/go \
-    && curl -JLs https://github.com/Microsoft/vscode-go/releases/download/0.9.0/Go-0.9.0.vsix | bsdtar --strip-components=1 -xf - -C ${VSCODE_EXTENSIONS}/go extension
+    && curl -JLs https://marketplace.visualstudio.com/_apis/public/gallery/publishers/ms-vscode/vsextensions/Go/0.9.2/vspackage | bsdtar --strip-components=1 -xf - -C ${VSCODE_EXTENSIONS}/go extension
 
 RUN go get -u \
     github.com/mdempsky/gocode \
