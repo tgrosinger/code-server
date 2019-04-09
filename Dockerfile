@@ -127,6 +127,12 @@ RUN mkdir -p ${VSCODE_EXTENSIONS}/java \
 RUN mkdir -p ${VSCODE_EXTENSIONS}/java-debugger \
     && curl -JLs https://marketplace.visualstudio.com/_apis/public/gallery/publishers/vscjava/vsextensions/vscode-java-debug/0.17.0/vspackage | bsdtar --strip-components=1 -xf - -C ${VSCODE_EXTENSIONS}/java-debugger extension
 
+RUN mkdir -p ${VSCODE_EXTENSIONS}/java-test \
+    && curl -JLs https://marketplace.visualstudio.com/_apis/public/gallery/publishers/vscjava/vsextensions/vscode-java-test/0.15.1/vspackage | bsdtar --strip-components=1 -xf - -C ${VSCODE_EXTENSIONS}/java-test extension
+
+RUN mkdir -p ${VSCODE_EXTENSIONS}/maven \
+    && curl -JLs https://marketplace.visualstudio.com/_apis/public/gallery/publishers/vscjava/vsextensions/vscode-maven/0.16.0/vspackage | bsdtar --strip-components=1 -xf - -C ${VSCODE_EXTENSIONS}/maven extension
+
 # Setup Kubernetes Extension
 RUN mkdir -p ${VSCODE_EXTENSIONS}/yaml \
     && curl -JLs https://marketplace.visualstudio.com/_apis/public/gallery/publishers/redhat/vsextensions/vscode-yaml/0.4.0/vspackage | bsdtar --strip-components=1 -xf - -C ${VSCODE_EXTENSIONS}/yaml extension
