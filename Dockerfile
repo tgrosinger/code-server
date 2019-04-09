@@ -51,6 +51,13 @@ RUN apt-get update && apt-get install -y \
 ENV GO_VERSION="1.12.2"
 RUN curl -sL https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz | tar -xz -C /usr/local
 
+# Java SDK
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    default-jre \
+    default-jdk \
+    maven \
+    && rm -rf /var/lib/apt/lists/*
+
 # .NET Core SDK
 # RUN curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/microsoft.asc.gpg > /dev/null
 # RUN echo "deb [arch=amd64] https://packages.microsoft.com/ubuntu/18.04/prod $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/microsoft-prod.list
@@ -111,7 +118,15 @@ RUN go get -u \
     golang.org/x/lint/golint \
     && rm -rf $GOPATH/src \
     && rm -rf $GOPATH/pkg
-    
+
+# Setup Java Extension
+
+RUN mkdir -p ${VSCODE_EXTENSIONS}/java \
+    && curl -JLs https://marketplace.visualstudio.com/_apis/public/gallery/publishers/redhat/vsextensions/java/0.42.1/vspackage | bsdtar --strip-components=1 -xf - -C ${VSCODE_EXTENSIONS}/java extension
+
+RUN mkdir -p ${VSCODE_EXTENSIONS}/java-debugger \
+    && curl -JLs https://marketplace.visualstudio.com/_apis/public/gallery/publishers/vscjava/vsextensions/vscode-java-debug/0.17.0/vspackage | bsdtar --strip-components=1 -xf - -C ${VSCODE_EXTENSIONS}/java-debugger extension
+
 # Setup Kubernetes Extension
 RUN mkdir -p ${VSCODE_EXTENSIONS}/yaml \
     && curl -JLs https://marketplace.visualstudio.com/_apis/public/gallery/publishers/redhat/vsextensions/vscode-yaml/0.4.0/vspackage | bsdtar --strip-components=1 -xf - -C ${VSCODE_EXTENSIONS}/yaml extension
@@ -119,12 +134,12 @@ RUN mkdir -p ${VSCODE_EXTENSIONS}/yaml \
 RUN mkdir -p ${VSCODE_EXTENSIONS}/kubernetes \
     && curl -JLs https://marketplace.visualstudio.com/_apis/public/gallery/publishers/ms-kubernetes-tools/vsextensions/vscode-kubernetes-tools/0.1.18/vspackage | bsdtar --strip-components=1 -xf - -C ${VSCODE_EXTENSIONS}/kubernetes extension
 
-# Setup Browser Preview
-RUN mkdir -p ${VSCODE_EXTENSIONS}/debugger-for-chrome \
-    && curl -JLs https://marketplace.visualstudio.com/_apis/public/gallery/publishers/msjsdiag/vsextensions/debugger-for-chrome/4.11.3/vspackage | bsdtar --strip-components=1 -xf - -C ${VSCODE_EXTENSIONS}/debugger-for-chrome extension
+# Setup Chrome Preview
+RUN mkdir -p ${VSCODE_EXTENSIONS}/chrome-debugger \
+    && curl -JLs https://marketplace.visualstudio.com/_apis/public/gallery/publishers/msjsdiag/vsextensions/debugger-for-chrome/4.11.3/vspackage | bsdtar --strip-components=1 -xf - -C ${VSCODE_EXTENSIONS}/chrome-debugger extension
 
-RUN mkdir -p ${VSCODE_EXTENSIONS}/browser-preview \
-    && curl -JLs https://marketplace.visualstudio.com/_apis/public/gallery/publishers/auchenberg/vsextensions/vscode-browser-preview/0.4.0/vspackage | bsdtar --strip-components=1 -xf - -C ${VSCODE_EXTENSIONS}/browser-preview extension
+RUN mkdir -p ${VSCODE_EXTENSIONS}/chrome-preview \
+    && curl -JLs https://marketplace.visualstudio.com/_apis/public/gallery/publishers/auchenberg/vsextensions/vscode-browser-preview/0.4.0/vspackage | bsdtar --strip-components=1 -xf - -C ${VSCODE_EXTENSIONS}/chrome-preview extension
 
 # Setup User Workspace
 RUN mkdir -p /home/coder/project
