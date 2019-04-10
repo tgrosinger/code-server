@@ -1,18 +1,12 @@
 FROM ubuntu:18.04
 
 # Packages
-RUN apt-get update && apt-get install -y \
-    sudo \
-    curl \
-    locales \
-    openssl \
-    net-tools \
-    lsb-release \
-    ca-certificates \
+RUN apt-get update && apt-get install --no-install-recommends -y \
     gpg \
-    bsdtar \
+    curl \    
+    lsb-release \
     add-apt-key \
-    apt-transport-https \    
+    ca-certificates \    
     dumb-init \
     && rm -rf /var/lib/apt/lists/*
 
@@ -31,19 +25,21 @@ RUN curl -sL "https://storage.googleapis.com/kubernetes-release/release/${KUBECT
 # Azure CLI
 RUN curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/microsoft.asc.gpg > /dev/null
 RUN echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/azure-cli.list
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install --no-install-recommends -y \
     azure-cli \
     && rm -rf /var/lib/apt/lists/*
 
 # Common SDK
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install --no-install-recommends -y \
     git \
+    sudo \
+    wget \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 # Node SDK
 RUN curl -sL https://deb.nodesource.com/setup_11.x | bash -
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install --no-install-recommends -y \
     nodejs \
     && rm -rf /var/lib/apt/lists/*
 
@@ -53,30 +49,43 @@ RUN curl -sL https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz | tar -
 
 # Java SDK
 RUN apt-get update && apt-get install --no-install-recommends -y \
-    default-jre \
-    default-jdk \
+    default-jre-headless \
+    default-jdk-headless \
     maven \
     && rm -rf /var/lib/apt/lists/*
 
 # .NET Core SDK
 # RUN curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | tee /etc/apt/trusted.gpg.d/microsoft.asc.gpg > /dev/null
 # RUN echo "deb [arch=amd64] https://packages.microsoft.com/ubuntu/18.04/prod $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/microsoft-prod.list
-# RUN apt-get update && apt-get install -y \
+# RUN apt-get update && apt-get install --no-install-recommends -y \
 #    libunwind8 \
 #    dotnet-sdk-2.2 \
 #    && rm -rf /var/lib/apt/lists/*
 
 # Chromium
+# RUN apt-get update && apt-get install --no-install-recommends -y \
+#    chromium-browser \
+#    && rm -rf /var/lib/apt/lists/*
+
+# Chrome
+RUN curl -sS -o - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add
+RUN echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list
 RUN apt-get update && apt-get install --no-install-recommends -y \
-    chromium-browser \
+    google-chrome-stable \
     && rm -rf /var/lib/apt/lists/*
 
 # Code-Server
+RUN apt-get update && apt-get install --no-install-recommends -y \
+    bsdtar \
+    openssl \
+    locales \
+    net-tools \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN locale-gen en_US.UTF-8
+
 ENV CODE_VERSION="1.696-vsc1.33.0"
 RUN curl -sL https://github.com/codercom/code-server/releases/download/${CODE_VERSION}/code-server${CODE_VERSION}-linux-x64.tar.gz | tar --strip-components=1 -zx -C /usr/local/bin code-server${CODE_VERSION}-linux-x64/code-server
-
-# Setup OS
-RUN locale-gen en_US.UTF-8
 
 # Setup User
 RUN groupadd -r coder \
@@ -84,6 +93,7 @@ RUN groupadd -r coder \
     && echo "coder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/nopasswd
 USER coder
 
+# Setup User Profile
 ENV LC_ALL=en_US.UTF-8
 
 # Setup User Go Environment
@@ -97,7 +107,6 @@ ENV PATH "${PATH}:/usr/local/go/bin:/home/coder/go/bin"
 # ENV PATH "${PATH}:${MSBuildSDKsPath}"
 
 # Setup User Visual Studio Code Extentions
-RUN mkdir -p /home/coder/.local/share/code-server/extensions/
 ENV VSCODE_EXTENSIONS "/home/coder/.local/share/code-server/extensions"
 
 # Setup Go Extension
@@ -119,8 +128,13 @@ RUN go get -u \
     && rm -rf $GOPATH/src \
     && rm -rf $GOPATH/pkg
 
-# Setup Java Extension
+RUN go get -u \
+    github.com/stamblerre/gocode \
+    github.com/uudashr/gopkgs/cmd/gopkgs \
+    && rm -rf $GOPATH/src \
+    && rm -rf $GOPATH/pkg
 
+# Setup Java Extension
 RUN mkdir -p ${VSCODE_EXTENSIONS}/java \
     && curl -JLs https://marketplace.visualstudio.com/_apis/public/gallery/publishers/redhat/vsextensions/java/latest/vspackage | bsdtar --strip-components=1 -xf - -C ${VSCODE_EXTENSIONS}/java extension
 
