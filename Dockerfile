@@ -88,6 +88,10 @@ RUN mkdir -p ${VSCODE_EXTENSIONS}/yaml \
 RUN mkdir -p ${VSCODE_EXTENSIONS}/kubernetes \
     && curl -JLs --retry 5 https://marketplace.visualstudio.com/_apis/public/gallery/publishers/ms-kubernetes-tools/vsextensions/vscode-kubernetes-tools/latest/vspackage | bsdtar --strip-components=1 -xf - -C ${VSCODE_EXTENSIONS}/kubernetes extension
 
+# Setup Vim Extension
+RUN mkdir -p ${VSCODE_EXTENSIONS}/vim \
+    && curl -JLs --retry 5 https://marketplace.visualstudio.com/_apis/public/gallery/publishers/vscodevim/vsextensions/vim/1.4.0/vspackage | bsdtar --strip-components=1 -xf - -C ${VSCODE_EXTENSIONS}/vim extension
+
 # Setup User Workspace
 RUN mkdir -p /home/coder/project
 WORKDIR /home/coder/project
