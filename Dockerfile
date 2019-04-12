@@ -92,6 +92,10 @@ RUN mkdir -p ${VSCODE_EXTENSIONS}/kubernetes \
 RUN mkdir -p ${VSCODE_EXTENSIONS}/vim \
     && curl -JLs --retry 5 https://marketplace.visualstudio.com/_apis/public/gallery/publishers/vscodevim/vsextensions/vim/1.4.0/vspackage | bsdtar --strip-components=1 -xf - -C ${VSCODE_EXTENSIONS}/vim extension
 
+# Install Bluloco Light Theme
+RUN mkdir -p ${VSCODE_EXTENSIONS}/blueloco \
+    && curl -JLs --retry 5 https://marketplace.visualstudio.com/_apis/public/gallery/publishers/uloco/vsextensions/theme-bluloco-light/2.7.2/vspackage | bsdtar --strip-components=1 -xf - -C ${VSCODE_EXTENSIONS}/blueloco extension
+
 # Setup User Workspace
 RUN mkdir -p /home/coder/project
 WORKDIR /home/coder/project
