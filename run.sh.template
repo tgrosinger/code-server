@@ -1,0 +1,3 @@
+#!/bin/bash
+
+docker run -d -p 127.0.0.1:8443:8443 -v "${HOME}/code/<your-project>:/home/coder/project" tgrosinger/code-server:latest --allow-http --no-auth
