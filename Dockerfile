@@ -41,7 +41,7 @@ RUN curl -sL https://github.com/codercom/code-server/releases/download/${CODE_VE
 
 # Setup User
 RUN groupadd -r coder \
-    && useradd -m -r coder -g coder -s /bin/bash \
+    && useradd -u 1000 -m -r coder -g coder -s /bin/bash \
     && echo "coder ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/nopasswd
 USER coder
 
